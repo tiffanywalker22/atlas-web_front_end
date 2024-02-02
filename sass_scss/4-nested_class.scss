@@ -1,0 +1,9 @@
+/* #3D3D3D to elem inside body,#FF0000 to elem of .red inside body, using nested dec*/
+
+body {
+    color: #3D3D3D;
+
+    .red {
+        color: #FF0000;
+    }
+}
