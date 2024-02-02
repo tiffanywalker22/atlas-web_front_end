@@ -1,0 +1,9 @@
+/* #FF0000 to button, hover over button color #00FF00, use nest dec*/
+
+button {
+    color: #FF0000;
+
+    &:hover {
+        color: #00FF00;
+    }
+}
