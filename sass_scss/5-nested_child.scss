@@ -1,0 +1,11 @@
+/* #3D3D3D to elem inside body, #FF0000 to elem of .red that are 1st children of body, must use nest dec*/
+
+body {
+    color: #3D3D3D;
+
+    .red {
+        &:child {
+            color: #FF0000;
+        }
+    }
+}
