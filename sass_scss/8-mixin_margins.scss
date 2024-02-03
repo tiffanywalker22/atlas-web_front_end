@@ -1,0 +1,14 @@
+/* assigns margins using a mixin*/
+
+@mixin setmargins($left, $right) {
+    margin-left: $left;
+    margin-right: $right;
+}
+
+body {
+    @include setmargins(10px, 10px);
+}
+
+div {
+    @include setmargins(15px, 15px);
+}
