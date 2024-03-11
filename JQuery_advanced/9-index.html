@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+    <head>
+        <meta charset="utf-8" />
+        <title>Task 9</title>
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+        <style>
+        .loading {
+            opacity: 0.2;
+        }
+
+        #pagination {
+            list-style: none;
+            display: flex;
+            margin: 0;
+            padding: 0;
+        }
+
+        #pagination li {
+            margin-right: 10px;
+            cursor: pointer;
+            font-weight: normal;
+        }
+
+        #pagination li.active {
+            font-weight: bold;
+        }
+    </style>
+    </head>
+
+    <body>
+
+        <script type="application/javascript">
+        $(document).ready(function () {
+            $('body').append(
+                $('<form>').append(
+                    $('<input>', { type: 'text' }),
+                    $('<input>', { type: 'submit', value: 'Search' }),
+                    $('<ul>'),
+                    $('<ul>', { id: 'pagination' })
+                ).submit(function (event) {
+                    event.preventDefault();
+                    queryWikipedia($(this).find('input[type="text"]').val(), 0);
+                })
+            );
+
+            function addNewArticle(id, title, snippet) {
+                var listItem = $('<li>').append(
+                    $('<p>').append(
+                        $('<span>', { text: id + ' - ' }),
+                        $('<b>', { text: title })
+                    ),
+                    $('<p>', { html: snippet })
+                );
+                $('ul').append(listItem);
+            }
+
+            function queryWikipedia(search, offset) {
+                var data = {
+                    action: 'query',
+                    list: 'search',
+                    srsearch: search,
+                    format: 'json',
+                    origin: '*',
+                    utf8: 1,
+                    sroffset: offset,
+                    srlimit: 10
+                };
+                displayLoading(true);
+
+                $.ajax({
+                    url: 'https://en.wikipedia.org/w/api.php',
+                    data: data,
+                    dataType: 'jsonp',
+                    success: function (result) {
+                        result.query.search.forEach(function (article) {
+                            addNewArticle(article.pageid, article.title, article.snippet);
+                        });
+                        buildPagination(result.query.totalhits, 10, offset);
+                    },
+                    error: function (error) {
+                        console.error('Error querying Wikipedia API:', error);
+                    },
+                    complete: function () {
+                        displayLoading(false);
+                    }
+                });
+            }
+
+            function buildPagination(numberOfItems, itemsPerPage, currentOffset) {
+                var totalPages = Math.ceil(numberOfItems / itemsPerPage);
+                $('#pagination').empty();
+
+                for (var i = 0; i < totalPages; i++) {
+                    var listItem = $('<li>', {
+                        text: i + 1,
+                        click: function () {
+                            queryWikipedia($('form input[type="text"]').val(), $(this).text() * itemsPerPage - itemsPerPage);
+                        }
+                    });
+
+                    listItem.css({
+                        cursor: 'pointer',
+                        marginLeft: '10px',
+                        fontWeight: (i * itemsPerPage === currentOffset) ? 'bold' : 'normal'
+                    });
+
+                    $('#pagination').append(listItem);
+                }
+            }
+
+            function displayLoading(loading) {
+                var formElement = $('form');
+
+                if (loading) {
+                    formElement.wrap('<div class="loading"></div>');
+                } else {
+                    formElement.unwrap();
+                }
+            }
+        });
+    </script>
+
+    </body>
+
+</html>
