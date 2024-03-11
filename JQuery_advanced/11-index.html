@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+    <head>
+        <meta charset="utf-8" />
+        <title>Task 11</title>
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    </head>
+
+    <body>
+
+        <script type="application/javascript">
+        $(document).ready(function () {
+            listPosts();
+            buildForm();
+
+            function addPostRow(data) {
+                $('body').append(
+                    $('<p>').append(
+                        $('<span>', { text: 'Post created with id ' + data.id + ', title: ' + data.title + ', author: ' + data.author })
+                    )
+                );
+            }
+
+            function listPosts() {
+                $.get('http://localhost:3000/posts', function (response) {
+                    if (response) {
+                        response.forEach(function (post) {
+                            addPostRow(post);
+                        });
+                    } else {
+                        alert('Server Error');
+                    }
+                });
+            }
+
+            function buildForm() {
+                $('body').append(
+                    $('<form>').append(
+                        $('<div>').append(
+                            $('<label>', { for: 'author', text: 'Author' }),
+                            $('<input>', { type: 'text', id: 'author' })
+                        ),
+                        $('<div>').append(
+                            $('<label>', { for: 'title', text: 'Title' }),
+                            $('<textarea>', { id: 'title' })
+                        ),
+                        $('<input>', { type: 'submit' })
+                    ).submit(function (event) {
+                        event.preventDefault();
+                        sendForm();
+                    })
+                );
+
+                $('label').click(function () {
+                    var inputId = $(this).attr('for');
+                    $('#' + inputId).select();
+                });
+
+                $('form input[type="text"]').keypress(function (event) {
+                    if (event.which === 13) {
+                        event.preventDefault();
+                        $(this).closest('form').submit();
+                    }
+                });
+            }
+
+            function sendForm() {
+                $('form').after($('<p>').text('About to send the query to the API'));
+
+                var data = {
+                    title: $('#title').val(),
+                    author: $('#author').val()
+                };
+
+                $.ajax({
+                    url: 'http://localhost:3000/posts',
+                    type: 'POST',
+                    data: data,
+                    success: function (response) {
+                        addPostRow(response);
+                    },
+                    error: function () {
+                        alert('Error sending the POST query');
+                    },
+                    complete: function () {
+                        $('form').next('p').remove();
+                    }
+                });
+            }
+        });
+    </script>
+
+    </body>
+
+</html>
